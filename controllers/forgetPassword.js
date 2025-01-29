@@ -1,6 +1,6 @@
 import db from "../Models/index.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 
 const User = db.user;

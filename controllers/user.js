@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import db from "../Models/index.js";
 import { addNotifications } from "./notification.js";
 import { upload } from "../config/multer.js";  // Assuming multer config is in the config folder
