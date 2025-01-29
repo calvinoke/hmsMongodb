@@ -2,6 +2,9 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
+// Since __dirname is not available in ES modules, we use the following to get the directory name of the current module
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
 // Ensure the 'uploads' directory exists and is writable
 const uploadsDir = path.join(__dirname, '../uploads');
 
