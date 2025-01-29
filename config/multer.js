@@ -7,25 +7,16 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Ensure the 'uploads' directory exists and set correct permissions
-const uploadsDir = path.join(__dirname, '../uploads');
+const uploadsDir = '/tmp/uploads';
 
 fs.mkdir(uploadsDir, { recursive: true }, (err) => {
   if (err) {
     console.error('Error creating uploads directory:', err);
   } else {
-    console.log('Uploads directory created or already exists');
-
-    // Set read/write/execute permissions (777 allows full access)
-    fs.chmod(uploadsDir, 0o777, (err) => {
-      if (err) {
-        console.error('Failed to set permissions on uploads directory:', err);
-      } else {
-        console.log('Uploads directory is now fully writable');
-      }
-    });
+    console.log('Uploads directory is created and writable');
   }
 });
+
 
 // Define storage configuration for multer
 const storage = multer.diskStorage({
