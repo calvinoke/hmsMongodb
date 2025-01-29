@@ -1,25 +1,29 @@
 import multer from 'multer';
+import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
 
-// Since __dirname is not available in ES modules, we use the following to get the directory name of the current module
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+// Resolve __dirname in ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Ensure the 'uploads' directory exists and is writable
+// Ensure the 'uploads' directory exists and set correct permissions
 const uploadsDir = path.join(__dirname, '../uploads');
 
-fs.access(uploadsDir, fs.constants.W_OK, (err) => {
+fs.mkdir(uploadsDir, { recursive: true }, (err) => {
   if (err) {
-    // If the folder is not writable, try creating it with appropriate permissions
-    fs.mkdir(uploadsDir, { recursive: true }, (err) => {
+    console.error('Error creating uploads directory:', err);
+  } else {
+    console.log('Uploads directory created or already exists');
+
+    // Set read/write/execute permissions (777 allows full access)
+    fs.chmod(uploadsDir, 0o777, (err) => {
       if (err) {
-        console.error('Error creating uploads directory:', err);
+        console.error('Failed to set permissions on uploads directory:', err);
       } else {
-        console.log('Uploads directory is created and is writable');
+        console.log('Uploads directory is now fully writable');
       }
     });
-  } else {
-    console.log('Uploads directory is already writable');
   }
 });
 
