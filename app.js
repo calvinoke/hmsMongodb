@@ -9,11 +9,15 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
-
-
 dotenv.config(); // Load environment variables
 const app = express();
+// Serve the static files from the React app
+//app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// Handle requests by serving index.html for all routes
+//app.get('*', (req, res) => {
+ //   res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+//});
 
 // Configure CORS options
 const corsOptions = {
@@ -31,6 +35,9 @@ app.use(express.json({ extended: false })); // Parse JSON requests
 
 // Serve uploaded images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
+
 
 const port = process.env.PORT || 5000; // Set the port number
 
@@ -63,9 +70,9 @@ import historyRouter from "./routes/history.js";
 app.use("/history/", historyRouter);
 
 // Define a simple route
-app.get("/", (req, res) => {
-  res.json({ message: "Welcome to Health Management System..." });
-});
+//app.get("/", (req, res) => {
+ // res.json({ message: "Welcome to Health Management System..." });
+//});
 
 // Start the server
 app.listen(port, () => {
