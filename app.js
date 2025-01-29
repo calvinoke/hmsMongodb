@@ -4,19 +4,18 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const path = require("path");
 
-dotenv.config(); // Load environment variables
+dotenv.config();
 const app = express();
 
-// Configure CORS options
 const corsOptions = {
-  origin: "*",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
 };
 
-app.use(express.json()); // For parsing application/json
-app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
-app.use(cors(corsOptions)); // Apply CORS options
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors(corsOptions));
 
 // Serve uploaded images
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -32,22 +31,26 @@ const patientRouter = require("./routes/patient");
 app.use("/patients", patientRouter);
 
 const visitRouter = require("./routes/visite");
-app.use("/visits", visitRouter);
+app.use("/visits/", visitRouter);
 
 const appointmentRouter = require("./routes/appointment");
 app.use("/appointments", appointmentRouter);
 
 const prescriptionRouter = require("./routes/prescription");
-app.use("/prescriptions", prescriptionRouter);
+app.use("/prescriptions/", prescriptionRouter);
 
 const notificationRouter = require("./routes/notification");
-app.use("/notifications", notificationRouter);
+app.use("/notifications/", notificationRouter);
 
 const detectionRouter = require("./routes/detection");
-app.use("/detection", detectionRouter);
+app.use("/detection/", detectionRouter);
 
 const historyRouter = require("./routes/history");
-app.use("/history", historyRouter);
+app.use("/history/", historyRouter);
 
-// Export for Vercel serverless functions
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
+
 module.exports = app;
