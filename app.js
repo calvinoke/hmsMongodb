@@ -12,7 +12,7 @@ const app = express();
 
 // CORS configuration (allowing specific frontend)
 const corsOptions = {
-  origin: 'https://frontend-mongodb-qjah.vercel.app/', // Allow requests from your frontend URL
+  origin: 'https://frontend-mongodb-qjah.vercel.app', // Allow requests from your frontend URL
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific HTTP methods
   credentials: true, // If you're using cookies or authentication
 };
