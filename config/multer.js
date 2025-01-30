@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { fileURLToPath } from 'url';
-//import path from 'path';
+import path from 'path';
 
 // Load environment variables from .env file
 dotenv.config();
