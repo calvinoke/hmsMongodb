@@ -1,47 +1,46 @@
+import AWS from 'aws-sdk';
+import dotenv from 'dotenv';
 import multer from 'multer';
+import multerS3 from 'multer-s3';
 import { fileURLToPath } from 'url';
-import path from 'path';
-import fs from 'fs';
+//import path from 'path';
+
+// Load environment variables from .env file
+dotenv.config();
 
 // Resolve __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const uploadsDir = '/tmp/uploads';
-
-fs.mkdir(uploadsDir, { recursive: true }, (err) => {
-  if (err) {
-    console.error('Error creating uploads directory:', err);
-  } else {
-    console.log('Uploads directory is created and writable');
-  }
+// Configure AWS S3
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION, // Ensure you provide the region parameter
 });
 
-
-// Define storage configuration for multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir); // Use the ensured 'uploads' directory
+// Define S3 Storage for Multer
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: process.env.AWS_S3_BUCKET_NAME, // Ensure you set this in your .env file
+    acl: 'public-read', // Adjust permissions as needed
+    metadata: (req, file, cb) => {
+      cb(null, { fieldName: file.fieldname });
+    },
+    key: (req, file, cb) => {
+      cb(null, `uploads/${Date.now()}-${file.originalname}`); // Customize the S3 file path
+    },
+  }),
+  fileFilter: (req, file, cb) => {
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type, only JPEG, PNG, and JPG are allowed'), false);
+    }
   },
-  filename: (req, file, cb) => {
-    // Use the original name and add a timestamp to prevent file name collisions
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
+  limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
 });
 
-// File filter to accept only image files
-const fileFilter = (req, file, cb) => {
-  const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-  if (allowedMimeTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type, only JPEG, PNG, and JPG are allowed'), false);
-  }
-};
-
-// Configure multer with the storage, fileFilter, and limits
-export const upload = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5 MB
-});
+export { upload };
