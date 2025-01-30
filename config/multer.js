@@ -26,7 +26,6 @@ const upload = multer({
   storage: multerS3({
     s3: s3,
     bucket: process.env.AWS_S3_BUCKET_NAME, // Ensure this is set in your .env file
-    acl: "public-read", // Adjust permissions as needed
     metadata: (req, file, cb) => {
       cb(null, { fieldName: file.fieldname });
     },
