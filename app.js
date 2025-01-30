@@ -12,7 +12,7 @@ const app = express();
 
 // ✅ Enable CORS properly (before defining any routes)
 const corsOptions = {
-  origin: "https://frontend-mongodb-qjah.vercel.app",
+  origin: "https://hms-mongodb-i4y6.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
   credentials: true,
@@ -66,6 +66,11 @@ app.use("/history", historyRouter);
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Internal Server Error", error: err.message });
 });
 
 export default app;
