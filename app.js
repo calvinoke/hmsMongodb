@@ -12,7 +12,7 @@ const app = express();
 
 // ✅ Enable CORS properly (before defining any routes)
 const corsOptions = {
-  origin: "https://hms-mongodb-i4y6.vercel.app",
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
   credentials: true,
@@ -22,7 +22,7 @@ app.use(cors(corsOptions));
 
 // ✅ Additional CORS Headers for Debugging
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://frontend-mongodb-qjah.vercel.app");
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, x-access-token");
   if (req.method === "OPTIONS") {
