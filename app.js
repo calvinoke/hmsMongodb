@@ -10,26 +10,34 @@ dotenv.config();
 
 const app = express();
 
-// ✅ Enable CORS properly (before defining any routes)
 const corsOptions = {
-  origin: "*",
+  origin: ["http://localhost:3000"], // Allow frontend on port 3000
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
-  credentials: true,
+  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 };
+
 
 app.use(cors(corsOptions));
 
-// ✅ Additional CORS Headers for Debugging
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  const allowedOrigins = ["http://localhost:5000"];
+  const origin = req.headers.origin;
+  
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin); // ✅ Allow specific frontend origin
+    res.header("Access-Control-Allow-Credentials", "true"); // ✅ Ensure credentials work
+  }
+
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, x-access-token");
+
   if (req.method === "OPTIONS") {
     return res.sendStatus(204);
   }
   next();
 });
+
 
 // ✅ Middleware (JSON Parsing & Static Files)
 app.use(express.json());

@@ -41,10 +41,6 @@ const User = mongoose.model(
     phoneNumber: {
       type: Number,
     },
-    profilePhoto: {
-      base64: { type: String },
-      mimeType: { type: String }
-    },
     resetPasswordToken: {
       type: String,
     },
