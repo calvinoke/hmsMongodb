@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 
 const corsOptions = {
-  origin: ["https://frontend-mongodb-qjah.vercel.app/"], // Allow frontend on port 3000
+  origin: ["https://frontend-mongodb-qjah.vercel.app"], // Allow frontend on port 3000
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
   credentials: true, // Allow credentials (cookies, authorization headers, etc.)
