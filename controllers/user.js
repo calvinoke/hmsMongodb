@@ -170,8 +170,8 @@ export const updatePassword = async (req, res) => {
 // Handler
 export const uploadProfilePhoto = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).send({ message: "No file uploaded." });
+    if (!req.body.profilePhotoUrl) {
+      return res.status(400).send({ message: "Profile photo URL is required." });
     }
 
     const userId = req.body.userId;
@@ -181,7 +181,8 @@ export const uploadProfilePhoto = async (req, res) => {
       return res.status(404).send({ message: "User not found." });
     }
 
-    user.profilePhoto = `/uploads/${req.file.filename}`;
+    // Assuming profilePhotoUrl is provided in the request body (e.g., URL or file path)
+    user.profilePhoto = req.body.profilePhotoUrl;
     await user.save();
 
     res.status(200).send({

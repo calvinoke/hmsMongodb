@@ -5,7 +5,6 @@ import {
   getProfile,
   updateUser,
   updatePassword,
-   uploadProfilePhoto 
 } from "../controllers/user.js";
 import {
   forgetPassword,
@@ -13,18 +12,12 @@ import {
 } from "../controllers/forgetPassword.js";
 import checkDuplicateUsernameOrEmail from "../middleware/verifyDuplicate.js";
 import verifyToken from "../middleware/authJwt.js";
-import { upload } from "../config/multer.js"; 
-// Middleware setup
-const uploadMiddleware = upload.single('profilePhoto');
-
 
 const router = express.Router();
 
 router.post("/signup", [checkDuplicateUsernameOrEmail], signup);
 router.post("/signin", signin);
 router.get("/profile", [verifyToken], getProfile);
-// Router
-router.post("/uploadProfilePhoto", [verifyToken, uploadMiddleware], uploadProfilePhoto);
 router.put("/profile", [verifyToken], updateUser);
 
 router.get("/verifyToken", [verifyToken], (req, res) => {
