@@ -3,82 +3,70 @@ import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-import connectDb from "./config/dbConnection.js";
+import pool from "./config/dbConnection.js"; // Import the database connection
 
-// Load environment variables
-dotenv.config();
-
-const app = express();
-
-const corsOptions = {
-  origin: ["https://frontend-mongodb-qjah.vercel.app"], // Allow frontend on port 3000
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
-  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-};
-
-
-app.use(cors(corsOptions));
-
-app.use((req, res, next) => {
-  const allowedOrigins = ["http://localhost:5000"];
-  const origin = req.headers.origin;
-  
-  if (allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin); // ✅ Allow specific frontend origin
-    res.header("Access-Control-Allow-Credentials", "true"); // ✅ Ensure credentials work
-  }
-
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, x-access-token");
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-  next();
-});
-
-
-// ✅ Middleware (JSON Parsing & Static Files)
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Resolve __dirname equivalent in ES Modules
+// Get current directory path
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+dotenv.config();
+const app = express();
+
+// Configure CORS options
+const corsOptions = {
+  origin: "*",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+};
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors(corsOptions));
+
+// Serve uploaded images
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ✅ Connect to Database
-connectDb();
-
-// ✅ Import and use routers
-import userRouter from "./routes/user.js";
-import patientRouter from "./routes/patient.js";
-import visitRouter from "./routes/visite.js";
-import appointmentRouter from "./routes/appointment.js";
-import prescriptionRouter from "./routes/prescription.js";
-import notificationRouter from "./routes/notification.js";
-import detectionRouter from "./routes/detection.js";
-import historyRouter from "./routes/history.js";
-
-app.use("/users", userRouter);
-app.use("/patients", patientRouter);
-app.use("/visits", visitRouter);
-app.use("/appointments", appointmentRouter);
-app.use("/prescriptions", prescriptionRouter);
-app.use("/notifications", notificationRouter);
-app.use("/detection", detectionRouter);
-app.use("/history", historyRouter);
-
-// ✅ Start Server
 const port = process.env.PORT || 5000;
+
+// Test the database connection
+pool.connect()
+  .then(() => console.log("PostgreSQL connected successfully."))
+  .catch((err) => {
+    console.error("Error connecting to PostgreSQL:", err.message);
+    process.exit(1);
+  });
+
+// Import and use routers
+import userRouter from "./routes/user.js";
+app.use("/users", userRouter);
+
+import patientRouter from "./routes/patient.js";
+app.use("/patients", patientRouter);
+
+import visitRouter from "./routes/visite.js";
+app.use("/visits/", visitRouter);
+
+import appointmentRouter from "./routes/appointment.js";
+app.use("/appointments", appointmentRouter);
+
+import prescriptionRouter from "./routes/prescription.js";
+app.use("/prescriptions/", prescriptionRouter);
+
+import notificationRouter from "./routes/notification.js";
+app.use("/notifications/", notificationRouter);
+
+import detectionRouter from "./routes/detection.js";
+app.use("/detection/", detectionRouter);
+
+import historyRouter from "./routes/history.js";
+app.use("/history/", historyRouter);
+
+// Define a simple route
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to Health Management System 2025..." });
+});
+
+// Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: "Internal Server Error", error: err.message });
-});
-
-export default app;

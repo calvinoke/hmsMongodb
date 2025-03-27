@@ -5,51 +5,68 @@ import { addNotifications } from "./notification.js";
 
 const User = db.user;
 
-export const signup = (req, res) => {
-  const password = req.body.password;
-  if (!password || typeof password !== 'string') {
-    return res.status(400).send({ message: 'Password is required and must be a string' });
-  }
 
-  const hashedPassword = bcrypt.hashSync(password, 8);
 
-  const user = new User({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    username: req.body.username,
-    email: req.body.email,
-    password: hashedPassword,
-    specialty: req.body.specialty,
-    phoneNumber: req.body.phoneNumber,
-  });
+export const signup = async (req, res) => {
+  try {
+    const { firstName, lastName, username, email, password, specialty, phoneNumber } = req.body;
 
-  user
-    .save()
-    .then(() => {
-      jwt.sign(
-        { id: user._id },
-        process.env.JWT_SECRET_KEY,
-        { expiresIn: 86400 },
-        (err, token) => {
-          if (err) {
-            return res.status(500).send({ message: err.message });
-          }
-          res.status(200).send({
-            firstName: user.firstName,
-            lastName: user.lastName,
-            username: user.username,
-            email: user.email,
-            phoneNumber: user.phoneNumber,
-            specialty: user.specialty,
-            accessToken: token
-          });
-        }
-      );
-    })
-    .catch((err) => {
-      res.status(500).send({ message: err.message });
+    // Validate required fields
+    if (!firstName || !lastName || !username || !email || !password) {
+      return res.status(400).json({ message: "All required fields must be provided." });
+    }
+
+    if (typeof password !== "string") {
+      return res.status(400).json({ message: "Password must be a string." });
+    }
+
+    // Check if username or email already exists
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email or username already in use." });
+    }
+
+    // Hash password
+    const hashedPassword = bcrypt.hashSync(password, 8);
+
+    // Create new user
+    const user = new User({
+      firstName,
+      lastName,
+      username,
+      email,
+      password: hashedPassword,
+      specialty,
+      phoneNumber,
     });
+
+    // Save user to database
+    await user.save();
+
+    // Generate JWT token
+    if (!process.env.JWT_SECRET_KEY) {
+      console.error("JWT_SECRET_KEY is missing!");
+      return res.status(500).json({ message: "Internal server error" });
+    }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: "24h" });
+
+    // Respond with user details and token
+    res.status(201).json({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      specialty: user.specialty,
+      accessToken: token,
+    });
+  } catch (error) {
+    console.error("Error in signup:", error);
+    res.status(500).json({ message: "Something went wrong. Please try again." });
+  }
 };
+
 
 export const signin = async (req, res) => {
   try {
